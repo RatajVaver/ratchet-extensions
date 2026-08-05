@@ -9,13 +9,20 @@ extern "C" {
 
 #define RATCHET_API_VERSION 1
 
+#ifdef _WIN32
+#define RATCHET_EXTENSION_EXPORT extern "C" __declspec(dllexport)
+#else
+#define RATCHET_EXTENSION_EXPORT extern "C" __attribute__((visibility("default")))
+#endif
+
 /*
- * Every extension DLL must export exactly this function:
- *   extern "C" __declspec(dllexport) void RatchetRegister(RatchetAPI* api);
+ * Every extension module (.dll on Windows, .so on Linux) must export exactly this function:
+ *   RATCHET_EXTENSION_EXPORT void RatchetRegister(RatchetAPI* api);
  *
  * It will be called once at startup, before any plugins are loaded.
  * Call api->register_ext("MyExt", "1.0.0") before using api->L or any log functions.
  * DO NOT store api->L, it shall not be used outside of Lua callbacks.
+ * Link against Ratchet's own Lua library build (lua55.dll/liblua55.so).
  * Keep in mind that introducing any faulty code will crash the server.
  */
 
